@@ -4,12 +4,6 @@
 [ext_resource type="Script" uid="uid://dk05068er63u4" path="res://Scripts/Main.gd" id="1_r0du0"]
 [ext_resource type="Script" uid="uid://dymevpadncmbt" path="res://Scripts/Ball.gd" id="2_uu6xs"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_x6bgo"]
-size = Vector2(800, 40)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_rxg2q"]
-size = Vector2(40, 600)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ggkey"]
 size = Vector2(120, 40)
 
@@ -17,35 +11,6 @@ size = Vector2(120, 40)
 
 [node name="Main" type="Node2D" unique_id=533963994]
 script = ExtResource("1_r0du0")
-
-[node name="Walls" type="Node2D" parent="." unique_id=2008858145]
-
-[node name="Top" type="StaticBody2D" parent="Walls" unique_id=1353352690]
-position = Vector2(400, 20)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Top" unique_id=1372720614]
-shape = SubResource("RectangleShape2D_x6bgo")
-
-[node name="Polygon2D" type="Polygon2D" parent="Walls/Top" unique_id=1158021461]
-polygon = PackedVector2Array(-400, -20, 400, -20, 400, 20, -400, 20)
-
-[node name="Left" type="StaticBody2D" parent="Walls" unique_id=919825143]
-position = Vector2(20, 300)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Left" unique_id=780398328]
-shape = SubResource("RectangleShape2D_rxg2q")
-
-[node name="Polygon2D" type="Polygon2D" parent="Walls/Left" unique_id=1483458287]
-polygon = PackedVector2Array(-20, -300, 20, -300, 20, 300, -20, 300)
-
-[node name="Right" type="StaticBody2D" parent="Walls" unique_id=19206930]
-position = Vector2(780, 300)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Right" unique_id=1729517685]
-shape = SubResource("RectangleShape2D_rxg2q")
-
-[node name="Polygon2D" type="Polygon2D" parent="Walls/Right" unique_id=453863946]
-polygon = PackedVector2Array(-20, -300, 20, -300, 20, 300, -20, 300)
 
 [node name="Paddle" type="CharacterBody2D" parent="." unique_id=1733562431]
 position = Vector2(400, 580)
@@ -65,5 +30,12 @@ script = ExtResource("2_uu6xs")
 shape = SubResource("CircleShape2D_x6bgo")
 
 [node name="Polygon2D" type="Polygon2D" parent="Ball/CollisionShape2D" unique_id=173547009]
+position = Vector2(1, 1)
+polygon = PackedVector2Array(-11, -3, -9, -7, -6, -10, -1, -11, 3.90625, -10, 7, -7, 9, -3, 9, 1, 8, 3, 7, 5, 4, 8, -1, 9, -6, 8, -9, 5, -10, 3, -11, 1)
+
+[node name="Target" type="CharacterBody2D" parent="." unique_id=710340404]
+position = Vector2(800, 600)
+
+[node name="Polygon2D" type="Polygon2D" parent="Target" unique_id=1786937473]
 position = Vector2(1, 1)
 polygon = PackedVector2Array(-11, -3, -9, -7, -6, -10, -1, -11, 3.90625, -10, 7, -7, 9, -3, 9, 1, 8, 3, 7, 5, 4, 8, -1, 9, -6, 8, -9, 5, -10, 3, -11, 1)

@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-@export var speed: float = 400.0
+@export var speed: float = 256
 
 var control: float = 0.0
 
@@ -15,4 +15,5 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# Keep the paddle inside the play area.
-	global_position.x = clamp(global_position.x, 60.0, 740.0)
+	global_position.x = clamp(global_position.x, 0, 512)
+	global_position.y = 512
