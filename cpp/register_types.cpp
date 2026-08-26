@@ -2,6 +2,7 @@
 #include <godot_cpp/godot.hpp>
 
 #include "score_printer.h"
+#include "paddle_ai.h"
 
 using namespace godot;
 
@@ -11,6 +12,7 @@ void initialize_neuralnetwork_module(ModuleInitializationLevel p_level) {
 	}
 
 	GDREGISTER_CLASS(ScorePrinter);
+	GDREGISTER_CLASS(PaddleAI);
 }
 
 void uninitialize_neuralnetwork_module(ModuleInitializationLevel p_level) {

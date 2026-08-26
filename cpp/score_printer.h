@@ -1,5 +1,4 @@
-#ifndef SCORE_PRINTER_H
-#define SCORE_PRINTER_H
+#pragma once
 
 #include <godot_cpp/classes/ref_counted.hpp>
 
@@ -14,5 +13,3 @@ protected:
 public:
 	void print_score(int score);
 };
-
-#endif
