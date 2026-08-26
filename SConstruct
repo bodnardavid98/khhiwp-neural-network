@@ -37,6 +37,25 @@ env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 env.Append(CPPPATH=["cpp/"])
 sources = Glob("cpp/*.cpp")
 
+env.Append(CPPPATH=[
+	"/usr/include/torch/csrc/api/include",
+])
+
+env.Append(CPPDEFINES=[
+	"GLOG_USE_GLOG_EXPORT",
+])
+
+env.Append(CXXFLAGS=[
+	"-fexceptions",
+	"-D_GLIBCXX_USE_CXX11_ABI=1",
+])
+
+env.Append(LIBS=[
+	"torch",
+	"torch_cpu",
+	"c10",
+])
+
 if env["target"] in ["editor", "template_debug"]:
 	try:
 		doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))

@@ -1,3 +1,6 @@
+# Dependencies
+sudo pacman -S godot scons python-pytorch
+
 # Build
 git submodule update --init --recursive  
 scons platform=linux api_version=4.7  
