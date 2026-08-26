@@ -6,18 +6,40 @@ extends Node2D
 
 var score: int = 0
 const BALL_RADIUS := 10
+
 var score_printer: ScorePrinter
+var paddle_ai: PaddleAI
+
 
 func _ready() -> void:
 	score_printer = ScorePrinter.new()
-	score_printer.print_score(score)
+	paddle_ai = PaddleAI.new()
 
 	randomize()
 	reset_game()
 
 
 func _physics_process(_delta: float) -> void:
-	paddle.set_control(Input.get_axis("ui_left", "ui_right"))
+	# paddle.set_control(Input.get_axis("ui_left", "ui_right"))
+
+	# Ask the neural network what to do.
+	var actions = paddle_ai.predict(
+		ball.target_position.x,
+		ball.target_position.y,
+		paddle.global_position.x,
+		paddle.global_position.y
+	)
+
+	var press_left: bool = actions[0]
+	var press_right: bool = actions[1]
+
+	# Both pressed, or neither pressed, means no movement.
+	if press_left == press_right:
+		paddle.set_control(0.0)
+	elif press_left:
+		paddle.set_control(-1.0)
+	elif press_right:
+		paddle.set_control(1.0)
 
 	if ball.global_position.y < 0 || 512 < ball.global_position.y || ball.global_position.x < 0 || 512 < ball.global_position.x:
 		change_score(-1)

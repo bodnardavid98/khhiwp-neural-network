@@ -3,6 +3,16 @@
 #include <godot_cpp/core/class_db.hpp>
 
 void PaddleAI::_bind_methods() {
+	ClassDB::bind_method(
+		D_METHOD(
+			"predict",
+			"target_x",
+			"target_y",
+			"paddle_x",
+			"paddle_y"
+			),
+		&PaddleAI::predict
+		);
 }
 
 PaddleAI::NetworkImpl::NetworkImpl()
@@ -26,8 +36,28 @@ PaddleAI::PaddleAI()
 	: network(Network()) {
 }
 
-torch::Tensor PaddleAI::predict(const torch::Tensor &input) {
+godot::Array PaddleAI::predict(float target_x, float target_y, float paddle_x,
+	float paddle_y) {
 	torch::NoGradGuard no_grad;
 
-	return torch::sigmoid(network->forward(input));
+	torch::Tensor input = torch::tensor({
+		target_x,
+		target_y,
+		paddle_x,
+		paddle_y
+	}).reshape({1, 4});
+
+	torch::Tensor output = torch::sigmoid(
+		network->forward(input)
+		);
+
+	// For now, threshold the two independent outputs.
+	bool press_left = output[0][0].item<float>() >= 0.5f;
+	bool press_right = output[0][1].item<float>() >= 0.5f;
+
+	godot::Array result;
+	result.append(press_left);
+	result.append(press_right);
+
+	return result;
 }
