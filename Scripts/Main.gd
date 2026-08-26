@@ -6,13 +6,17 @@ extends Node2D
 
 var score: int = 0
 const BALL_RADIUS := 10
+var score_printer: ScorePrinter
 
 func _ready() -> void:
+	score_printer = ScorePrinter.new()
+	score_printer.print_score(score)
+
 	randomize()
 	reset_game()
 
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	paddle.set_control(Input.get_axis("ui_left", "ui_right"))
 
 	if ball.global_position.y < 0 || 512 < ball.global_position.y || ball.global_position.x < 0 || 512 < ball.global_position.x:
@@ -27,7 +31,7 @@ func _physics_process(delta: float) -> void:
 
 func change_score(amount: int) -> void:
 	score += amount
-	print("Score: ", score)
+	score_printer.print_score(score)
 
 	reset_game()
 
