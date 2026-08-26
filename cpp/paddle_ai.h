@@ -23,11 +23,18 @@ TORCH_MODULE(Network);
 
 Network network;
 
+static constexpr const char *MODEL_PATH = "user://paddle_ai.bin";
+
+void save_model();
+void load_model();
+
 protected:
 static void _bind_methods();
 
 public:
 PaddleAI();
+
+void save();
 
 Array predict(
 	float target_x,

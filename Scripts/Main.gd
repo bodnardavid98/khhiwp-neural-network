@@ -54,7 +54,7 @@ func _physics_process(_delta: float) -> void:
 func change_score(amount: int) -> void:
 	score += amount
 	score_printer.print_score(score)
-
+	paddle_ai.save()
 	reset_game()
 
 

@@ -1,5 +1,5 @@
 # Dependencies
-sudo pacman -S godot scons python-pytorch
+sudo pacman -S godot scons python-pytorch  
 
 # Build
 git submodule update --init --recursive  
@@ -9,4 +9,4 @@ scons platform=linux api_version=4.7
 scons -c api_version=4.7  
 
 # Format
-uncrustify -c ./Uncrustify.cfg --replace ./cpp/*.cpp ./cpp/*.h
+uncrustify -c ./Uncrustify.cfg --replace ./cpp/*.cpp ./cpp/*.h  
