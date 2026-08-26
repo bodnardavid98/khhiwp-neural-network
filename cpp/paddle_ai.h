@@ -6,34 +6,35 @@
 using namespace godot;
 
 class PaddleAI : public RefCounted {
-	GDCLASS(PaddleAI, RefCounted);
+GDCLASS(PaddleAI, RefCounted);
 
 protected:
-	static void _bind_methods();
+static void _bind_methods();
 
 public:
-	PaddleAI();
+PaddleAI();
 
-	// 4 inputs:
-	// [target_x, target_y, paddle_x, paddle_y]
-	//
-	// 2 outputs:
-	// [left, right]
-	torch::Tensor predict(const torch::Tensor& input);
+// 4 inputs:
+// [target_x, target_y, paddle_x, paddle_y]
+//
+// 2 outputs:
+// [left, right]
+torch::Tensor predict(const torch::Tensor &input);
 
 private:
-	// Neural network itself.
-	struct NetworkImpl : torch::nn::Module {
-		NetworkImpl();
 
-		torch::Tensor forward(torch::Tensor x);
+// Neural network itself.
+struct NetworkImpl : torch::nn::Module {
+	NetworkImpl();
 
-		torch::nn::Linear layer1{nullptr};
-		torch::nn::Linear layer2{nullptr};
-		torch::nn::Linear output{nullptr};
-	};
+	torch::Tensor forward(torch::Tensor x);
 
-	TORCH_MODULE(Network);
+	torch::nn::Linear layer1{nullptr};
+	torch::nn::Linear layer2{nullptr};
+	torch::nn::Linear output{nullptr};
+};
 
-	Network network;
+TORCH_MODULE(Network);
+
+Network network;
 };

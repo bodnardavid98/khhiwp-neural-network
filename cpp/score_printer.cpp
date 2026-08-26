@@ -7,7 +7,7 @@ void ScorePrinter::_bind_methods() {
 	ClassDB::bind_method(
 		D_METHOD("print_score", "score"),
 		&ScorePrinter::print_score
-	);
+		);
 }
 
 void ScorePrinter::print_score(int score) {

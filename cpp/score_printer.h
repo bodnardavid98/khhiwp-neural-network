@@ -5,11 +5,11 @@
 using namespace godot;
 
 class ScorePrinter : public RefCounted {
-	GDCLASS(ScorePrinter, RefCounted);
+GDCLASS(ScorePrinter, RefCounted);
 
 protected:
-	static void _bind_methods();
+static void _bind_methods();
 
 public:
-	void print_score(int score);
+void print_score(int score);
 };
