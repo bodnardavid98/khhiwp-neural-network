@@ -31,6 +31,7 @@ shape = SubResource("CircleShape2D_x6bgo")
 
 [node name="Polygon2D" type="Polygon2D" parent="Ball/CollisionShape2D" unique_id=173547009]
 position = Vector2(1, 1)
+color = Color(1, 0, 0, 1)
 polygon = PackedVector2Array(-11, -3, -9, -7, -6, -10, -1, -11, 3.90625, -10, 7, -7, 9, -3, 9, 1, 8, 3, 7, 5, 4, 8, -1, 9, -6, 8, -9, 5, -10, 3, -11, 1)
 
 [node name="Target" type="CharacterBody2D" parent="." unique_id=710340404]

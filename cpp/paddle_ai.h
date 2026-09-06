@@ -9,9 +9,12 @@ class PaddleAI : public RefCounted {
 GDCLASS(PaddleAI, RefCounted);
 
 private:
+float reward_baseline = 0.0f;
+
 struct NetworkImpl : torch::nn::Module {
 	torch::nn::Linear layer1{nullptr};
 	torch::nn::Linear layer2{nullptr};
+	torch::nn::Linear layer3{nullptr};
 	torch::nn::Linear output{nullptr};
 
 	NetworkImpl();
@@ -22,6 +25,15 @@ struct NetworkImpl : torch::nn::Module {
 TORCH_MODULE(Network);
 
 Network network;
+
+std::shared_ptr<torch::optim::Adam> optimizer;
+
+// The single decision made for the current target
+torch::Tensor last_log_prob;
+bool has_decision = false;
+
+static constexpr float FIELD_SIZE = 512.0f;
+float step_count = 0;
 
 static constexpr const char *MODEL_PATH = "user://paddle_ai.bin";
 
@@ -36,10 +48,9 @@ PaddleAI();
 
 void save();
 
-Array predict(
-	float target_x,
-	float target_y,
-	float paddle_x,
-	float paddle_y
-	);
+// Called once per target; returns desired paddle x in world coords (0..512)
+double predict(double target_x, double target_y);
+
+// Trains the single decision with the round's reward
+void train(float reward);
 };

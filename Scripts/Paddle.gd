@@ -14,6 +14,6 @@ func _physics_process(_delta: float) -> void:
 
 	move_and_slide()
 
-	# Keep the paddle inside the play area.
+	# Keep the paddle inside the play area
 	global_position.x = clamp(global_position.x, 0, 512)
 	global_position.y = 512
