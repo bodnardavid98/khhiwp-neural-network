@@ -8,6 +8,8 @@ void PaddleAI::_bind_methods() {
 		&PaddleAI::predict);
 	ClassDB::bind_method(D_METHOD("train", "reward"), &PaddleAI::train);
 	ClassDB::bind_method(D_METHOD("save"), &PaddleAI::save);
+	ClassDB::bind_method(D_METHOD("addfitness", "newfitness"),
+		&PaddleAI::addfitness);
 }
 
 PaddleAI::NetworkImpl::NetworkImpl()
@@ -34,24 +36,27 @@ PaddleAI::PaddleAI()
 	: network(Network()) {
 	load_model();
 
-	optimizer = std::make_shared<torch::optim::Adam>(network->parameters());
+	// Lower than default learning rate
+	optimizer = std::make_shared<torch::optim::Adam>(
+		network->parameters(), torch::optim::AdamOptions(1e-4f));
 }
 
 double PaddleAI::predict(double target_x, double target_y) {
-	torch::Tensor input = torch::tensor({
-		target_x / FIELD_SIZE,
-		target_y / FIELD_SIZE
-	}).reshape({1, 2});
-
+	torch::Tensor input = torch::tensor({target_x, target_y}).reshape({1, 2});
 	torch::Tensor mean = torch::sigmoid(network->forward(input));
 
-	double std = 0.005f + 0.045f * expf(-step_count / 5000.0f);
+	// Fitness based standard derivation
+	double average = fitnesses.empty() ? 1 : std::accumulate(fitnesses.begin(),
+			fitnesses.end(), 0.0) / fitnesses.size();
+	if (average < 1) {
+		// Do not divide by 0
+		average = 1;
+	}
+	double std = 0.01 - (0.01 / 100) * (average);
 
 	torch::Tensor sample = (mean + torch::randn_like(mean) * std).detach();
-
 	torch::Tensor diff = (sample - mean) / std;
 	torch::Tensor log_prob = (-0.5f * diff * diff).sum();
-
 	last_log_prob = log_prob;
 	has_decision = true;
 
@@ -72,7 +77,13 @@ void PaddleAI::train(float reward) {
 	optimizer->step();
 
 	has_decision = false;
-	step_count += 1;
+}
+
+void PaddleAI::addfitness(double newfitness) {
+	fitnesses.push_back(newfitness);
+	if (fitnesses.size() > 100) {
+		fitnesses.erase(fitnesses.begin());
+	}
 }
 
 void PaddleAI::save() {

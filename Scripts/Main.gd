@@ -6,12 +6,18 @@ extends Node2D
 
 var scorechange: int = 0
 var score: int = 0
-var hundredscore: float = 0
 var fitness: float = 0
-var BALL_RADIUS := 15
+var fitnessabove: int = 0
+var BALL_RADIUS := 10
 var min_distance: float = INF
 var max_distance: float = sqrt(512 * 512 + 512 * 512)
 var paddle_ai: PaddleAI
+var start_time: String = Time.get_datetime_string_from_system()
+var scores: Array[float] = []
+var notraining: bool = false
+var training: bool = !notraining
+var FIELD_SIZE := 512
+var FITNESS_GOAL := 90
 
 
 func _ready() -> void:
@@ -22,6 +28,8 @@ func _ready() -> void:
 
 	# Increase speed for faster runs
 	Engine.time_scale = 10.0
+	Engine.max_physics_steps_per_frame *= 20
+	Engine.physics_ticks_per_second *= 20
 
 
 func _physics_process(_delta: float) -> void:
@@ -47,26 +55,57 @@ func _physics_process(_delta: float) -> void:
 		change_score(1)
 		return
 
-
 func change_score(amount: int) -> void:
 	score += amount
-	hundredscore += amount
-	var scale := BALL_RADIUS / 10.0
-	$Ball/CollisionShape2D/Polygon2D.scale = Vector2(scale, scale)
-	$Target/Polygon2D.scale = Vector2(scale, scale)
+	scorechange += 1
+
+	# Keep at most 1000 last scores stored
+	scores.append(amount)
+	if scores.size() > 1000:
+		scores.pop_front()
+
+	# Provide sliding average of scores as fitness to model
+	if scores.is_empty():
+		fitness = 1
+	else:
+		var sum := 0.0
+		for value in scores:
+			sum += value
+		fitness = (sum / scores.size() + 1) * 50
+	paddle_ai.addfitness(fitness)
+
+	# Record above FITNESS_GOAL fitness plays, if training is not disabled,
+	# get back into training from verification phase on lost streak
+	if FITNESS_GOAL < fitness:
+		fitnessabove += 1
+	else:
+		if !notraining:
+			training = true
+		fitnessabove = 0
+
+	# Last good run needed, save a last time, enter verification phase
+	if training && fitnessabove == 100:
+		paddle_ai.save()
+		fitnessabove = 0
+		training = false
+
+	# Verification phase is done, send notification, exit
+	if fitnessabove == 1000:
+		OS.execute("notify-send", ["-u", "critical", "Training done. Started: " + start_time + " Ended: " + Time.get_datetime_string_from_system()])
+		get_tree().quit()
 
 	# Train model
-	var reward := 1.0 - min_distance / max_distance
-	if amount == 1:
-		reward += 1.0
-	paddle_ai.train(reward)
+	if training:
+		var reward := 1.0 - min_distance / max_distance
+		if amount == 1:
+			reward += 1.0
+		paddle_ai.train(reward)
 
-	# Save model every 300 game played, update fitness
-	scorechange += 1
-	if scorechange % 300 == 0:
-		fitness = (hundredscore / 300 + 1) * 50
-		hundredscore = 0
-		paddle_ai.save()
+	# Save model every 100 game played, print progress
+	if scorechange % 100 == 0:
+		print("Fitness: ", fitness, ", Score: ", score)
+		if training:
+			paddle_ai.save()
 
 	# Reset game
 	reset_game()
@@ -99,12 +138,9 @@ func reset_game() -> void:
 
 	# Set control provided by the model
 	paddle.set_control(paddle_ai.predict(
-		ball.target_position.x,
-		ball.target_position.y
+		float(ball.target_position.x) / float(FIELD_SIZE),
+		float(ball.target_position.y) / float(FIELD_SIZE)
 	))
 
 	# Reset distance
 	min_distance = INF
-
-	# Print progress
-	print("Fitness: ", fitness, ", Score: ", score, ", Target: ", ball.target_position, ", Radius: ", BALL_RADIUS)

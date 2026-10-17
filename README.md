@@ -1,5 +1,5 @@
 # Dependencies
-sudo pacman -S godot scons python-pytorch  
+sudo pacman -S godot scons python-pytorch libnotify  
 
 # Build
 git submodule update --init --recursive  

@@ -46,6 +46,7 @@ env.Append(CPPDEFINES=[
 ])
 
 env.Append(CXXFLAGS=[
+	"-std=c++20",
 	"-fexceptions",
 	"-D_GLIBCXX_USE_CXX11_ABI=1",
 ])

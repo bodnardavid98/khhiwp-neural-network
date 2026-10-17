@@ -31,9 +31,7 @@ std::shared_ptr<torch::optim::Adam> optimizer;
 // The single decision made for the current target
 torch::Tensor last_log_prob;
 bool has_decision = false;
-
-static constexpr float FIELD_SIZE = 512.0f;
-float step_count = 0;
+std::vector<double> fitnesses;
 
 static constexpr const char *MODEL_PATH = "user://paddle_ai.bin";
 
@@ -53,4 +51,7 @@ double predict(double target_x, double target_y);
 
 // Trains the single decision with the round's reward
 void train(float reward);
+
+// Add fitness value to sliding sync
+void addfitness(double newfitness);
 };
