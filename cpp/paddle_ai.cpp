@@ -16,7 +16,7 @@ PaddleAI::NetworkImpl::NetworkImpl()
 	: layer1(2, 32),
 	layer2(32, 32),
 	layer3(32, 32),
-	output(32, 1) {
+	output(32, 2) {
 	register_module("layer1", layer1);
 	register_module("layer2", layer2);
 	register_module("layer3", layer3);
@@ -41,7 +41,7 @@ PaddleAI::PaddleAI()
 		network->parameters(), torch::optim::AdamOptions(1e-4f));
 }
 
-double PaddleAI::predict(double target_x, double target_y) {
+godot::Vector2 PaddleAI::predict(double target_x, double target_y) {
 	torch::Tensor input = torch::tensor({target_x, target_y}).reshape({1, 2});
 	torch::Tensor mean = torch::sigmoid(network->forward(input));
 
@@ -60,7 +60,10 @@ double PaddleAI::predict(double target_x, double target_y) {
 	last_log_prob = log_prob;
 	has_decision = true;
 
-	return (sample[0][0].item<double>() - 0.5) * 2;
+	double output_1 = sample[0][0].item<double>();
+	double output_2 = sample[0][1].item<double>();
+
+	return godot::Vector2(output_1, output_2);
 }
 
 void PaddleAI::train(float reward) {

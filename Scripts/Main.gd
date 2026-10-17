@@ -36,10 +36,6 @@ func _physics_process(_delta: float) -> void:
 	# No manual control
 	# paddle.set_control(Input.get_axis("ui_left", "ui_right"))
 
-	# No need to move paddle after hit
-	if ball.paddle_hit:
-		paddle.set_control(0.0)
-
 	# Track how close ball got to target
 	var distance := ball.global_position.distance_to(ball.target_position)
 	if distance < min_distance:
@@ -126,7 +122,7 @@ func is_good_target(position: Vector2) -> bool:
 
 func reset_game() -> void:
 	# Center paddle and ball
-	paddle.global_position = Vector2(256, 512)
+	paddle.global_position = Vector2(0, 512)
 	ball.reset_ball(Vector2(256, 256))
 
 	# Generate a new target, try not to give free points, nor impossible to hit targets
@@ -137,10 +133,11 @@ func reset_game() -> void:
 	target.global_position = targetposition
 
 	# Set control provided by the model
-	paddle.set_control(paddle_ai.predict(
+	var result: Vector2 = paddle_ai.predict(
 		float(ball.target_position.x) / float(FIELD_SIZE),
-		float(ball.target_position.y) / float(FIELD_SIZE)
-	))
+		float(ball.target_position.y) / float(FIELD_SIZE))
+
+	paddle.set_control(result.x, result.y)
 
 	# Reset distance
 	min_distance = INF

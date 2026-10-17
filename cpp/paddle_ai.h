@@ -1,6 +1,7 @@
 #pragma once
 
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/vector2.hpp>
 #include <torch/torch.h>
 
 using namespace godot;
@@ -47,7 +48,7 @@ PaddleAI();
 void save();
 
 // Called once per target; returns desired paddle x in world coords (0..512)
-double predict(double target_x, double target_y);
+godot::Vector2 predict(double target_x, double target_y);
 
 // Trains the single decision with the round's reward
 void train(float reward);
