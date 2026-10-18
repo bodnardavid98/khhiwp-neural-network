@@ -1,9 +1,21 @@
 extends CharacterBody2D
 
-@export var speed: float = 256
+enum GameMode {
+	PONG,
+	BASKETBALL
+}
+
+@export var game_mode: GameMode = GameMode.PONG
+@export var speed: float = 256.0
+@export var gravity: float = 512.0
 @export var paddle_hit: bool = false
 
 var target_position: Vector2
+
+func set_control(value1: float, value2: float) -> void:
+	var launch_speed: float = value1 * 512
+	var launch_angle: float = deg_to_rad(value2 * 360)
+	velocity = Vector2.RIGHT.rotated(launch_angle) * launch_speed
 
 
 func _ready() -> void:
@@ -14,11 +26,16 @@ func reset_ball(newposition: Vector2) -> void:
 	global_position = newposition
 	paddle_hit = false
 
-	# Start by moving downward
-	velocity = Vector2(0, 1).normalized() * speed
+	# Start by moving downward in Pong mode
+	if game_mode == GameMode.PONG:
+		velocity = Vector2(0, 1).normalized() * speed
 
 
 func _physics_process(delta: float) -> void:
+	# Gravity: accelerate downward
+	if game_mode == GameMode.BASKETBALL:
+		velocity.y += gravity * delta
+
 	var collision := move_and_collide(velocity * delta)
 
 	if collision:
@@ -26,7 +43,10 @@ func _physics_process(delta: float) -> void:
 
 		if collider is CharacterBody2D and collider.name == "Paddle":
 			paddle_hit = true
-			
+
 		var normal := collision.get_normal()
 		velocity = velocity.bounce(normal)
-		velocity = velocity.normalized() * speed
+
+		# Preserve constant speed in Pong mode only
+		if game_mode == GameMode.PONG:
+			velocity = velocity.normalized() * speed

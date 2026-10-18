@@ -1,5 +1,11 @@
 extends CharacterBody2D
 
+enum GameMode {
+	PONG,
+	BASKETBALL
+}
+
+@export var game_mode: GameMode = GameMode.PONG
 @export var speed: float = 512
 var control1: float = 0
 var control2: float = 0
@@ -9,6 +15,8 @@ func set_control(value1: float, value2: float) -> void:
 	control2 = value2
 
 func _physics_process(_delta: float) -> void:
+	if game_mode == GameMode.BASKETBALL:
+		return
 	velocity.x = control1 * speed
 	velocity.y = 0
 	rotation = deg_to_rad(control2 * 360)

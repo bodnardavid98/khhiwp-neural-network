@@ -1,5 +1,11 @@
 extends Node2D
 
+enum GameMode {
+	PONG,
+	BASKETBALL
+}
+
+@export var game_mode: GameMode = GameMode.PONG
 @onready var paddle: CharacterBody2D = $Paddle
 @onready var ball: CharacterBody2D = $Ball
 @onready var target: Node2D = $Target
@@ -24,6 +30,10 @@ func _ready() -> void:
 	# Set up everything
 	paddle_ai = PaddleAI.new()
 	randomize()
+
+	ball.game_mode = game_mode
+	paddle.game_mode = game_mode
+
 	reset_game()
 
 	# Increase speed for faster runs
@@ -107,8 +117,15 @@ func change_score(amount: int) -> void:
 	reset_game()
 
 func is_good_target(position: Vector2) -> bool:
-	# No free points (target too close or under ball)
-	if (ball.global_position.distance_to(position) < BALL_RADIUS * 2) || (position.x <= ball.global_position.x + BALL_RADIUS * 2 && position.x >= ball.global_position.x - BALL_RADIUS * 2 && position.y > ball.global_position.y):
+	# Target too close
+	if (ball.global_position.distance_to(position) < BALL_RADIUS * 2):
+		return false
+
+	if game_mode == GameMode.BASKETBALL:
+		return Vector2(256, 256).distance_to(position) < 256 || 256 < position.y
+		
+	# Target under ball
+	if position.x <= ball.global_position.x + BALL_RADIUS * 2 && position.x >= ball.global_position.x - BALL_RADIUS * 2 && position.y > ball.global_position.y:
 		return false
 
 	# Under paddle
@@ -121,8 +138,11 @@ func is_good_target(position: Vector2) -> bool:
 	return abs(position.x - 256.0) <= max_horizontal_distance
 
 func reset_game() -> void:
-	# Center paddle and ball
-	paddle.global_position = Vector2(0, 512)
+	# Set paddle and ball position
+	if game_mode == GameMode.BASKETBALL:
+		paddle.global_position = Vector2(-512, -512)
+	else:
+		paddle.global_position = Vector2(0, 512)
 	ball.reset_ball(Vector2(256, 256))
 
 	# Generate a new target, try not to give free points, nor impossible to hit targets
@@ -137,7 +157,10 @@ func reset_game() -> void:
 		float(ball.target_position.x) / float(FIELD_SIZE),
 		float(ball.target_position.y) / float(FIELD_SIZE))
 
-	paddle.set_control(result.x, result.y)
+	if game_mode == GameMode.BASKETBALL:
+		ball.set_control(result.x, result.y)
+	else:
+		paddle.set_control(result.x, result.y)
 
 	# Reset distance
 	min_distance = INF
