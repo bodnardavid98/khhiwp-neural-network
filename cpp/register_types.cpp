@@ -1,7 +1,7 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/godot.hpp>
 
-#include "paddle_ai.h"
+#include "ai.h"
 
 using namespace godot;
 
@@ -10,7 +10,7 @@ void initialize_neuralnetwork_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
-	GDREGISTER_CLASS(PaddleAI);
+	GDREGISTER_CLASS(AI);
 }
 
 void uninitialize_neuralnetwork_module(ModuleInitializationLevel p_level) {

@@ -1,18 +1,17 @@
-#include "paddle_ai.h"
+#include "ai.h"
 
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-void PaddleAI::_bind_methods() {
+void AI::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("predict", "target_x", "target_y"),
-		&PaddleAI::predict);
-	ClassDB::bind_method(D_METHOD("train", "reward"), &PaddleAI::train);
-	ClassDB::bind_method(D_METHOD("save"), &PaddleAI::save);
-	ClassDB::bind_method(D_METHOD("addfitness", "newfitness"),
-		&PaddleAI::addfitness);
+		&AI::predict);
+	ClassDB::bind_method(D_METHOD("train", "reward"), &AI::train);
+	ClassDB::bind_method(D_METHOD("save"), &AI::save);
+	ClassDB::bind_method(D_METHOD("addfitness", "newfitness"), &AI::addfitness);
 }
 
-PaddleAI::NetworkImpl::NetworkImpl()
+AI::NetworkImpl::NetworkImpl()
 	: layer1(2, 32),
 	layer2(32, 32),
 	layer3(32, 32),
@@ -23,7 +22,7 @@ PaddleAI::NetworkImpl::NetworkImpl()
 	register_module("output", output);
 }
 
-torch::Tensor PaddleAI::NetworkImpl::forward(torch::Tensor x) {
+torch::Tensor AI::NetworkImpl::forward(torch::Tensor x) {
 	x = torch::relu(layer1->forward(x));
 	x = torch::relu(layer2->forward(x));
 	x = torch::relu(layer3->forward(x));
@@ -32,8 +31,7 @@ torch::Tensor PaddleAI::NetworkImpl::forward(torch::Tensor x) {
 	return x;
 }
 
-PaddleAI::PaddleAI()
-	: network(Network()) {
+AI::AI() : network(Network()) {
 	load_model();
 
 	// Lower than default learning rate
@@ -41,7 +39,7 @@ PaddleAI::PaddleAI()
 		network->parameters(), torch::optim::AdamOptions(1e-4f));
 }
 
-godot::Vector2 PaddleAI::predict(double target_x, double target_y) {
+godot::Vector2 AI::predict(double target_x, double target_y) {
 	torch::Tensor input = torch::tensor({target_x, target_y}).reshape({1, 2});
 	torch::Tensor mean = torch::sigmoid(network->forward(input));
 
@@ -66,7 +64,7 @@ godot::Vector2 PaddleAI::predict(double target_x, double target_y) {
 	return godot::Vector2(output_1, output_2);
 }
 
-void PaddleAI::train(float reward) {
+void AI::train(float reward) {
 	if (!has_decision) {
 		return;
 	}
@@ -82,18 +80,18 @@ void PaddleAI::train(float reward) {
 	has_decision = false;
 }
 
-void PaddleAI::addfitness(double newfitness) {
+void AI::addfitness(double newfitness) {
 	fitnesses.push_back(newfitness);
 	if (fitnesses.size() > 100) {
 		fitnesses.erase(fitnesses.begin());
 	}
 }
 
-void PaddleAI::save() {
+void AI::save() {
 	save_model();
 }
 
-void PaddleAI::save_model() {
+void AI::save_model() {
 	godot::Ref<godot::FileAccess> file =
 		godot::FileAccess::open(MODEL_PATH, godot::FileAccess::WRITE);
 
@@ -135,13 +133,13 @@ void PaddleAI::save_model() {
 
 	file->close();
 
-	godot::UtilityFunctions::print("Paddle AI model saved.");
+	godot::UtilityFunctions::print("AI model saved.");
 }
 
-void PaddleAI::load_model() {
+void AI::load_model() {
 	if (!godot::FileAccess::file_exists(MODEL_PATH)) {
 		godot::UtilityFunctions::print(
-			"No saved Paddle AI model found. Starting fresh.");
+			"No saved AI model found. Starting fresh.");
 		return;
 	}
 
@@ -212,5 +210,5 @@ void PaddleAI::load_model() {
 
 	file->close();
 
-	godot::UtilityFunctions::print("Paddle AI model loaded.");
+	godot::UtilityFunctions::print("AI model loaded.");
 }

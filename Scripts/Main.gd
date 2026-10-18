@@ -17,7 +17,7 @@ var fitnessabove: int = 0
 var BALL_RADIUS := 10
 var min_distance: float = INF
 var max_distance: float = sqrt(512 * 512 + 512 * 512)
-var paddle_ai: PaddleAI
+var ai: AI
 var start_time: String = Time.get_datetime_string_from_system()
 var scores: Array[float] = []
 var notraining: bool = false
@@ -28,7 +28,7 @@ var FITNESS_GOAL := 90
 
 func _ready() -> void:
 	# Set up everything
-	paddle_ai = PaddleAI.new()
+	ai = AI.new()
 	randomize()
 
 	ball.game_mode = game_mode
@@ -78,7 +78,7 @@ func change_score(amount: int) -> void:
 		for value in scores:
 			sum += value
 		fitness = (sum / scores.size() + 1) * 50
-	paddle_ai.addfitness(fitness)
+	ai.addfitness(fitness)
 
 	# Record above FITNESS_GOAL fitness plays, if training is not disabled,
 	# get back into training from verification phase on lost streak
@@ -91,7 +91,7 @@ func change_score(amount: int) -> void:
 
 	# Last good run needed, save a last time, enter verification phase
 	if training && fitnessabove == 100:
-		paddle_ai.save()
+		ai.save()
 		fitnessabove = 0
 		training = false
 
@@ -105,13 +105,13 @@ func change_score(amount: int) -> void:
 		var reward := 1.0 - min_distance / max_distance
 		if amount == 1:
 			reward += 1.0
-		paddle_ai.train(reward)
+		ai.train(reward)
 
 	# Save model every 100 game played, print progress
 	if scorechange % 100 == 0:
 		print("Fitness: ", fitness, ", Score: ", score)
 		if training:
-			paddle_ai.save()
+			ai.save()
 
 	# Reset game
 	reset_game()
@@ -123,7 +123,7 @@ func is_good_target(position: Vector2) -> bool:
 
 	if game_mode == GameMode.BASKETBALL:
 		return Vector2(256, 256).distance_to(position) < 256 || 256 < position.y
-		
+
 	# Target under ball
 	if position.x <= ball.global_position.x + BALL_RADIUS * 2 && position.x >= ball.global_position.x - BALL_RADIUS * 2 && position.y > ball.global_position.y:
 		return false
@@ -153,7 +153,7 @@ func reset_game() -> void:
 	target.global_position = targetposition
 
 	# Set control provided by the model
-	var result: Vector2 = paddle_ai.predict(
+	var result: Vector2 = ai.predict(
 		float(ball.target_position.x) / float(FIELD_SIZE),
 		float(ball.target_position.y) / float(FIELD_SIZE))
 

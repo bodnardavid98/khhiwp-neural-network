@@ -6,8 +6,8 @@
 
 using namespace godot;
 
-class PaddleAI : public RefCounted {
-GDCLASS(PaddleAI, RefCounted);
+class AI : public RefCounted {
+GDCLASS(AI, RefCounted);
 
 private:
 float reward_baseline = 0.0f;
@@ -34,7 +34,7 @@ torch::Tensor last_log_prob;
 bool has_decision = false;
 std::vector<double> fitnesses;
 
-static constexpr const char *MODEL_PATH = "user://paddle_ai.bin";
+static constexpr const char *MODEL_PATH = "user://ai.bin";
 
 void save_model();
 void load_model();
@@ -43,11 +43,11 @@ protected:
 static void _bind_methods();
 
 public:
-PaddleAI();
+AI();
 
 void save();
 
-// Called once per target; returns desired paddle x in world coords (0..512)
+// Called once per target; returns desired ball/paddle direction and speed
 godot::Vector2 predict(double target_x, double target_y);
 
 // Trains the single decision with the round's reward
